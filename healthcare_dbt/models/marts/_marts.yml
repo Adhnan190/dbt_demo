@@ -1,0 +1,220 @@
+version: 2
+
+models:
+  - name: fct_appointments
+    description: >
+      Final appointments fact table. The widest model in the project — combines all
+      appointment attributes with patient demographics, provider details, and financial
+      metrics. Key model for runtime regression monitoring.
+    columns:
+      - name: appointment_id
+        description: "Primary key — unique appointment identifier."
+        tests:
+          - unique
+          - not_null
+      - name: patient_id
+        description: "Foreign key to dim_patients."
+        tests:
+          - not_null
+      - name: provider_id
+        description: "Foreign key to dim_providers."
+        tests:
+          - not_null
+      - name: appointment_date
+        description: "Calendar date of the appointment."
+        tests:
+          - not_null
+      - name: appointment_type
+        description: "Category of the appointment."
+        tests:
+          - accepted_values:
+              values: ['Routine Checkup','Follow-up','Emergency','Consultation',
+                       'Procedure','Lab Review','Vaccination','Mental Health','Physical Therapy']
+      - name: status
+        description: "Appointment outcome status."
+        tests:
+          - accepted_values:
+              values: ['completed','scheduled','cancelled','no_show']
+      - name: is_completed
+        description: "TRUE if appointment was completed."
+      - name: is_cancelled
+        description: "TRUE if appointment was cancelled."
+      - name: is_no_show
+        description: "TRUE if patient did not show up."
+      - name: is_emergency
+        description: "TRUE if appointment type is Emergency."
+      - name: copay_amount
+        description: "Patient copay amount at time of visit."
+      - name: is_billed
+        description: "Whether the visit was billed to insurance."
+      - name: revenue_at_risk
+        description: "Copay amount lost due to no-shows."
+      - name: patient_name
+        description: "Patient full name (from stg_patients)."
+      - name: age_group
+        description: "Patient age bracket."
+      - name: insurance_provider
+        description: "Patient insurance carrier."
+      - name: specialty
+        description: "Provider medical specialty."
+      - name: hospital
+        description: "Hospital or clinic where the visit occurred."
+      - name: appointment_month
+        description: "Month of appointment in YYYY-MM format for time-series analysis."
+      - name: is_revenue_generating
+        description: "TRUE when appointment is completed, billed, and has a positive copay."
+
+  - name: fct_claims
+    description: >
+      Final insurance claims fact table. Contains full claim financials,
+      adjudication status, patient and provider context, and financial risk flags.
+    columns:
+      - name: claim_id
+        description: "Primary key — unique claim identifier."
+        tests:
+          - unique
+          - not_null
+      - name: patient_id
+        description: "Foreign key to dim_patients."
+        tests:
+          - not_null
+      - name: provider_id
+        description: "Foreign key to dim_providers."
+        tests:
+          - not_null
+      - name: claim_status
+        description: "Adjudication status of the claim."
+        tests:
+          - accepted_values:
+              values: ['paid','denied','pending','partial','appealed']
+      - name: billed_amount
+        description: "Total amount billed."
+        tests:
+          - not_null
+      - name: paid_amount
+        description: "Amount paid by the insurer."
+      - name: coverage_rate
+        description: "Ratio of paid to billed (0–1)."
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1
+              inclusive: true
+      - name: denial_flag
+        description: "TRUE if the claim was denied."
+      - name: is_high_value
+        description: "TRUE if billed_amount exceeds $5,000."
+      - name: financial_risk_flag
+        description: "TRUE if claim is denied AND billed > $1,000."
+      - name: processing_tier
+        description: "Processing speed bucket (Fast / Normal / Slow)."
+        tests:
+          - accepted_values:
+              values: ['Fast','Normal','Slow']
+
+  - name: dim_patients
+    description: >
+      Patient dimension combining demographic attributes with lifetime engagement
+      metrics, tier classification, and churn risk scoring.
+    columns:
+      - name: patient_id
+        description: "Primary key — unique patient identifier."
+        tests:
+          - unique
+          - not_null
+      - name: full_name
+        description: "Patient full name in Title Case."
+        tests:
+          - not_null
+      - name: age_years
+        description: "Patient age in full years."
+        tests:
+          - not_null
+      - name: insurance_provider
+        description: "Primary insurance carrier."
+        tests:
+          - not_null
+      - name: engagement_score
+        description: "Composite 0–100 patient engagement score."
+      - name: patient_tier
+        description: "Revenue tier based on total lifetime payments."
+        tests:
+          - accepted_values:
+              values: ['High Value','Medium','Low']
+      - name: churn_risk
+        description: "Churn risk level based on recency of last appointment."
+        tests:
+          - accepted_values:
+              values: ['High','Medium','Low']
+      - name: outstanding_balance
+        description: "Total unpaid patient responsibility balance."
+      - name: total_paid
+        description: "Lifetime total paid by insurance on behalf of this patient."
+
+  - name: dim_providers
+    description: >
+      Provider dimension with clinical attributes and aggregated appointment
+      statistics including workload tier.
+    columns:
+      - name: provider_id
+        description: "Primary key — unique provider identifier."
+        tests:
+          - unique
+          - not_null
+      - name: full_name
+        description: "Provider full name."
+        tests:
+          - not_null
+      - name: specialty
+        description: "Medical specialty."
+      - name: hospital
+        description: "Affiliated hospital or clinic."
+      - name: total_appointments
+        description: "Total appointments handled by this provider."
+      - name: completion_rate
+        description: "Ratio of completed to total appointments."
+      - name: avg_appointments_per_day
+        description: "Average daily appointment volume on working days."
+      - name: workload_tier
+        description: "Volume classification: High / Medium / Low."
+        tests:
+          - accepted_values:
+              values: ['High','Medium','Low']
+
+  - name: rpt_daily_operations
+    description: >
+      Incremental daily operations summary. One row per calendar day with
+      appointment and claims KPIs, denial rates, and payment rates.
+      Used for trend analysis and regression detection in the monitoring dashboard.
+    columns:
+      - name: report_date
+        description: "Primary key — the calendar date this row summarises."
+        tests:
+          - unique
+          - not_null
+      - name: total_appointments
+        description: "Total appointments scheduled on this date."
+      - name: completed_count
+        description: "Appointments with status = completed."
+      - name: cancelled_count
+        description: "Appointments with status = cancelled."
+      - name: no_show_count
+        description: "Appointments with status = no_show."
+      - name: emergency_count
+        description: "Emergency appointments on this date."
+      - name: total_copay_collected
+        description: "Sum of copay amounts collected."
+      - name: new_claims_filed
+        description: "Claims with claim_date matching this report_date."
+      - name: claims_denied
+        description: "Claims denied on this date."
+      - name: total_billed
+        description: "Total billed amount for claims on this date."
+      - name: total_paid
+        description: "Total paid amount for claims on this date."
+      - name: denial_rate
+        description: "Fraction of claims denied (0–1)."
+      - name: no_show_rate
+        description: "Fraction of appointments that were no-shows (0–1)."
+      - name: payment_rate
+        description: "Fraction of billed amount that was paid (0–1)."

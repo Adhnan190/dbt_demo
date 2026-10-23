@@ -1,0 +1,183 @@
+version: 2
+
+sources:
+  - name: raw
+    database: HEALTHCARE_DB
+    schema: RAW
+    description: "Raw healthcare source data loaded into Snowflake from operational systems."
+
+    tables:
+      - name: patients
+        description: "Raw patient demographic and insurance information."
+        loaded_at_field: created_at
+        freshness:
+          warn_after: {count: 24, period: hour}
+          error_after: {count: 48, period: hour}
+        columns:
+          - name: PATIENT_ID
+            description: "Primary key — unique sequential patient identifier."
+            tests:
+              - unique
+              - not_null
+          - name: FIRST_NAME
+            description: "Patient first name."
+            tests:
+              - not_null
+          - name: LAST_NAME
+            description: "Patient last name."
+            tests:
+              - not_null
+          - name: DATE_OF_BIRTH
+            description: "Patient date of birth."
+          - name: GENDER
+            description: "Patient gender code."
+            tests:
+              - accepted_values:
+                  values: ['M', 'F']
+          - name: BLOOD_TYPE
+            description: "ABO blood group."
+            tests:
+              - accepted_values:
+                  values: ['A+','A-','B+','B-','O+','O-','AB+','AB-']
+          - name: INSURANCE_PROVIDER
+            description: "Primary insurance carrier."
+            tests:
+              - accepted_values:
+                  values: ['BlueCross','Aetna','Cigna','United','Medicare','Medicaid','Self-Pay']
+          - name: IS_ACTIVE
+            description: "Whether the patient record is currently active."
+          - name: REGISTERED_AT
+            description: "Timestamp when the patient first registered."
+          - name: UPDATED_AT
+            description: "Timestamp of the last record update."
+
+      - name: providers
+        description: "Raw provider (physician) records including specialty and hospital affiliation."
+        loaded_at_field: created_at
+        freshness:
+          warn_after: {count: 24, period: hour}
+          error_after: {count: 48, period: hour}
+        columns:
+          - name: PROVIDER_ID
+            description: "Primary key — unique sequential provider identifier."
+            tests:
+              - unique
+              - not_null
+          - name: FULL_NAME
+            description: "Provider full name including title."
+            tests:
+              - not_null
+          - name: SPECIALTY
+            description: "Medical specialty."
+            tests:
+              - accepted_values:
+                  values: ['Cardiology','Oncology','Neurology','Orthopedics','Pediatrics',
+                           'General Practice','Dermatology','Psychiatry','Radiology','Emergency Medicine']
+          - name: IS_ACTIVE
+            description: "Whether the provider is currently active."
+          - name: CREATED_AT
+            description: "Timestamp when the provider record was created."
+
+      - name: appointments
+        description: "Raw appointment records linking patients to providers for clinical visits."
+        loaded_at_field: created_at
+        freshness:
+          warn_after: {count: 24, period: hour}
+          error_after: {count: 48, period: hour}
+        columns:
+          - name: APPOINTMENT_ID
+            description: "Primary key — unique appointment identifier."
+            tests:
+              - unique
+              - not_null
+          - name: PATIENT_ID
+            description: "Foreign key to PATIENTS."
+            tests:
+              - not_null
+              - relationships:
+                  to: source('raw', 'patients')
+                  field: PATIENT_ID
+          - name: PROVIDER_ID
+            description: "Foreign key to PROVIDERS."
+            tests:
+              - not_null
+              - relationships:
+                  to: source('raw', 'providers')
+                  field: PROVIDER_ID
+          - name: STATUS
+            description: "Appointment status."
+            tests:
+              - accepted_values:
+                  values: ['completed','scheduled','cancelled','no_show']
+          - name: APPOINTMENT_TYPE
+            description: "Category of appointment."
+            tests:
+              - accepted_values:
+                  values: ['Routine Checkup','Follow-up','Emergency','Consultation',
+                           'Procedure','Lab Review','Vaccination','Mental Health','Physical Therapy']
+          - name: CREATED_AT
+            description: "Timestamp when the appointment was created."
+
+      - name: claims
+        description: "Raw insurance claims submitted for reimbursement."
+        loaded_at_field: created_at
+        freshness:
+          warn_after: {count: 24, period: hour}
+          error_after: {count: 48, period: hour}
+        columns:
+          - name: CLAIM_ID
+            description: "Primary key — unique claim identifier."
+            tests:
+              - unique
+              - not_null
+          - name: PATIENT_ID
+            description: "Foreign key to PATIENTS."
+            tests:
+              - not_null
+          - name: PROVIDER_ID
+            description: "Foreign key to PROVIDERS."
+            tests:
+              - not_null
+          - name: CLAIM_STATUS
+            description: "Current status of the claim."
+            tests:
+              - accepted_values:
+                  values: ['paid','denied','pending','partial','appealed']
+          - name: BILLED_AMOUNT
+            description: "Total amount billed by provider."
+            tests:
+              - not_null
+          - name: CREATED_AT
+            description: "Timestamp when the claim was created."
+
+      - name: medications
+        description: "Raw medication prescription records."
+        loaded_at_field: created_at
+        freshness:
+          warn_after: {count: 24, period: hour}
+          error_after: {count: 48, period: hour}
+        columns:
+          - name: MEDICATION_ID
+            description: "Primary key — unique medication record identifier."
+            tests:
+              - unique
+              - not_null
+          - name: PATIENT_ID
+            description: "Foreign key to PATIENTS."
+            tests:
+              - not_null
+          - name: PROVIDER_ID
+            description: "Foreign key to PROVIDERS."
+            tests:
+              - not_null
+          - name: DRUG_NAME
+            description: "Name of the prescribed drug."
+            tests:
+              - accepted_values:
+                  values: ['Metformin','Lisinopril','Atorvastatin','Amlodipine','Omeprazole',
+                           'Levothyroxine','Metoprolol','Albuterol','Gabapentin','Sertraline',
+                           'Hydrochlorothiazide','Losartan']
+          - name: IS_ACTIVE
+            description: "Whether the prescription is currently active."
+          - name: CREATED_AT
+            description: "Timestamp when the prescription was created."

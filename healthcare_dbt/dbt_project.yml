@@ -1,0 +1,29 @@
+name: healthcare_dbt
+version: '1.0.0'
+config-version: 2
+profile: healthcare_dbt
+
+model-paths: ["models"]
+test-paths: ["tests"]
+snapshot-paths: ["snapshots"]
+analysis-paths: ["analyses"]
+
+models:
+  healthcare_dbt:
+    staging:
+      +materialized: view
+      +schema: ANALYTICS
+      +tags: ['staging']
+    intermediate:
+      +materialized: ephemeral
+      +tags: ['intermediate']
+    marts:
+      +materialized: table
+      +schema: ANALYTICS
+      +tags: ['mart']
+      rpt_daily_operations:
+        +materialized: incremental
+        +unique_key: report_date
+
+vars:
+  start_date: '2023-01-01'

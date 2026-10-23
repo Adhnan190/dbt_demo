@@ -1,0 +1,271 @@
+version: 2
+
+models:
+  - name: stg_patients
+    description: "Cleaned and enriched patient records from the raw source. Includes age derivation, age group bucketing, and insurance flags."
+    columns:
+      - name: patient_id
+        description: "Primary key — unique patient identifier."
+        tests:
+          - unique
+          - not_null
+      - name: first_name
+        description: "Patient first name, trimmed and title-cased."
+        tests:
+          - not_null
+      - name: last_name
+        description: "Patient last name, trimmed and title-cased."
+        tests:
+          - not_null
+      - name: full_name
+        description: "Concatenated full name in Title Case."
+      - name: date_of_birth
+        description: "Patient date of birth cast to DATE."
+      - name: age_years
+        description: "Calculated age in full years as of today."
+      - name: age_group
+        description: "Age bracket: Pediatric (< 18), Adult (18–64), Senior (65+)."
+        tests:
+          - accepted_values:
+              values: ['Pediatric','Adult','Senior']
+      - name: gender
+        description: "Patient gender code (M or F)."
+        tests:
+          - accepted_values:
+              values: ['M','F']
+      - name: blood_type
+        description: "ABO blood group."
+      - name: phone
+        description: "Patient phone number in 555-XXXX format."
+      - name: email
+        description: "Patient email address, lowercased."
+      - name: city
+        description: "Patient city of residence."
+      - name: state
+        description: "Two-letter state abbreviation."
+      - name: insurance_provider
+        description: "Primary insurance carrier name."
+      - name: insurance_id
+        description: "Insurance policy identifier (INS-XXXXXXXX)."
+      - name: is_medicare
+        description: "TRUE if the patient's primary insurer is Medicare."
+      - name: is_medicaid
+        description: "TRUE if the patient's primary insurer is Medicaid."
+      - name: is_active
+        description: "Whether the patient record is currently active."
+      - name: registered_at
+        description: "Timestamp of initial patient registration."
+      - name: updated_at
+        description: "Timestamp of the most recent record update."
+      - name: days_since_registration
+        description: "Number of calendar days since the patient first registered."
+
+  - name: stg_providers
+    description: "Cleaned provider records with experience tier and specialty group classifications."
+    columns:
+      - name: provider_id
+        description: "Primary key — unique provider identifier."
+        tests:
+          - unique
+          - not_null
+      - name: full_name
+        description: "Provider full name including Dr. title."
+        tests:
+          - not_null
+      - name: specialty
+        description: "Medical specialty."
+      - name: department
+        description: "Hospital department associated with the specialty."
+      - name: npi_number
+        description: "National Provider Identifier in NPI-XXXXXXXXXX format."
+      - name: hospital
+        description: "Hospital or clinic where the provider practices."
+      - name: years_experience
+        description: "Total years of clinical experience."
+      - name: is_active
+        description: "Whether the provider is currently active."
+      - name: joined_date
+        description: "Date the provider joined the health system."
+      - name: created_at
+        description: "Timestamp when the provider record was created."
+      - name: experience_tier
+        description: "Seniority bucket: Junior (< 5 yrs), Mid (5–14), Senior (15+)."
+        tests:
+          - accepted_values:
+              values: ['Junior','Mid','Senior']
+      - name: specialty_group
+        description: "High-level specialty grouping: Surgical, Medical, Diagnostic, Mental Health, or Primary Care."
+        tests:
+          - accepted_values:
+              values: ['Surgical','Medical','Diagnostic','Mental Health','Primary Care']
+
+  - name: stg_appointments
+    description: "Cleaned appointment records with a combined datetime field and boolean status flags."
+    columns:
+      - name: appointment_id
+        description: "Primary key — unique appointment identifier."
+        tests:
+          - unique
+          - not_null
+      - name: patient_id
+        description: "Foreign key to stg_patients."
+        tests:
+          - not_null
+      - name: provider_id
+        description: "Foreign key to stg_providers."
+        tests:
+          - not_null
+      - name: appointment_date
+        description: "Calendar date of the appointment."
+      - name: appointment_time
+        description: "Clock time of the appointment."
+      - name: appointment_datetime
+        description: "Full timestamp of the appointment (date + time combined)."
+      - name: appointment_type
+        description: "Category of the appointment visit."
+        tests:
+          - accepted_values:
+              values: ['Routine Checkup','Follow-up','Emergency','Consultation',
+                       'Procedure','Lab Review','Vaccination','Mental Health','Physical Therapy']
+      - name: status
+        description: "Appointment outcome status."
+        tests:
+          - accepted_values:
+              values: ['completed','scheduled','cancelled','no_show']
+      - name: is_completed
+        description: "TRUE if status = completed."
+      - name: is_cancelled
+        description: "TRUE if status = cancelled."
+      - name: is_no_show
+        description: "TRUE if status = no_show."
+      - name: is_emergency
+        description: "TRUE if appointment_type = Emergency."
+      - name: duration_mins
+        description: "Scheduled duration of the appointment in minutes."
+      - name: visit_notes
+        description: "Short clinical note from the visit."
+      - name: diagnosis_code
+        description: "ICD-10 diagnosis code recorded at the appointment."
+      - name: copay_amount
+        description: "Patient copay charged at the visit."
+      - name: is_billed
+        description: "Whether the appointment has been billed to insurance."
+      - name: week_number
+        description: "ISO week number of the appointment year."
+      - name: month_year
+        description: "Appointment month in YYYY-MM format for time-series analysis."
+      - name: created_at
+        description: "Timestamp when the appointment record was created."
+      - name: updated_at
+        description: "Timestamp of the most recent appointment record update."
+
+  - name: stg_claims
+    description: "Cleaned insurance claim records with denial flag, financial adjustments, and processing tier."
+    columns:
+      - name: claim_id
+        description: "Primary key — unique claim identifier."
+        tests:
+          - unique
+          - not_null
+      - name: patient_id
+        description: "Foreign key to stg_patients."
+        tests:
+          - not_null
+      - name: provider_id
+        description: "Foreign key to stg_providers."
+        tests:
+          - not_null
+      - name: appointment_id
+        description: "Optional foreign key to stg_appointments (nullable for some claims)."
+      - name: claim_date
+        description: "Date the claim was submitted."
+      - name: service_date
+        description: "Date the clinical service was rendered."
+      - name: diagnosis_code
+        description: "ICD-10 diagnosis code on the claim."
+      - name: procedure_code
+        description: "CPT procedure code billed."
+      - name: billed_amount
+        description: "Total amount billed by the provider."
+        tests:
+          - not_null
+      - name: allowed_amount
+        description: "Contracted allowed amount after insurer discount."
+      - name: paid_amount
+        description: "Amount actually paid by the insurer."
+      - name: patient_responsibility
+        description: "Remaining balance owed by the patient (allowed - paid)."
+      - name: claim_status
+        description: "Current adjudication status of the claim."
+        tests:
+          - accepted_values:
+              values: ['paid','denied','pending','partial','appealed']
+      - name: denial_reason
+        description: "Reason for denial (NULL if not denied)."
+      - name: insurance_provider
+        description: "Insurance carrier that processed the claim."
+      - name: days_to_process
+        description: "Number of days from submission to adjudication."
+      - name: denial_flag
+        description: "TRUE if the claim was denied."
+      - name: adjustment_amount
+        description: "Amount discounted from billed (billed - allowed)."
+      - name: coverage_rate
+        description: "Ratio of paid to billed amount (0–1)."
+      - name: processing_tier
+        description: "Speed bucket: Fast (≤7 days), Normal (≤30), Slow (>30)."
+        tests:
+          - accepted_values:
+              values: ['Fast','Normal','Slow']
+      - name: created_at
+        description: "Timestamp when the claim was created."
+      - name: updated_at
+        description: "Timestamp of the most recent claim update."
+
+  - name: stg_medications
+    description: "Cleaned medication prescription records with chronic medication classification and duration metrics."
+    columns:
+      - name: medication_id
+        description: "Primary key — unique medication record identifier."
+        tests:
+          - unique
+          - not_null
+      - name: patient_id
+        description: "Foreign key to stg_patients."
+        tests:
+          - not_null
+      - name: provider_id
+        description: "Foreign key to stg_providers."
+        tests:
+          - not_null
+      - name: drug_name
+        description: "Generic drug name."
+      - name: drug_class
+        description: "Pharmacological drug class."
+      - name: dosage
+        description: "Prescribed dosage (e.g. 500mg)."
+      - name: frequency
+        description: "Dosing frequency."
+        tests:
+          - accepted_values:
+              values: ['Once daily','Twice daily','Three times daily','As needed','Weekly']
+      - name: start_date
+        description: "Date the prescription was started."
+      - name: end_date
+        description: "Date the prescription ended (NULL if still active)."
+      - name: is_active
+        description: "TRUE if the prescription has no end date."
+      - name: refill_count
+        description: "Number of times the prescription has been refilled."
+      - name: days_supply
+        description: "Days of supply per fill: 30, 60, or 90."
+      - name: pharmacy
+        description: "Dispensing pharmacy."
+      - name: created_at
+        description: "Timestamp when the prescription record was created."
+      - name: is_chronic
+        description: "TRUE if the drug class is typically used for chronic conditions."
+      - name: duration_days
+        description: "Total duration in days from start to end (or today if still active)."
+      - name: is_long_term
+        description: "TRUE if duration_days exceeds 180 days."

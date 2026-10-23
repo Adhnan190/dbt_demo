@@ -1,0 +1,12 @@
+# dbt
+healthcare_dbt/target/
+healthcare_dbt/dbt_packages/
+healthcare_dbt/logs/
+healthcare_dbt/.user.yml
+
+# Credentials — never commit these
+healthcare_dbt/profiles.yml
+
+# OS
+.DS_Store
+Thumbs.db

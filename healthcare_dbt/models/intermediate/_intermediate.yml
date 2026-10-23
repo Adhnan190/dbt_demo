@@ -1,0 +1,56 @@
+version: 2
+
+models:
+  - name: int_appointments_enriched
+    description: >
+      Heavy join combining appointments with patient and provider details.
+      Expected build time increases proportionally with appointment volume —
+      a key model to watch for regressions. This ephemeral model is the
+      upstream dependency for fct_appointments and contributes significantly
+      to overall pipeline runtime when appointment data volume spikes.
+    columns:
+      - name: appointment_id
+        description: "Primary key — unique appointment identifier."
+        tests:
+          - unique
+          - not_null
+      - name: patient_id
+        description: "Foreign key to stg_patients."
+      - name: provider_id
+        description: "Foreign key to stg_providers."
+      - name: revenue_at_risk
+        description: "Copay revenue lost to no-shows (copay_amount when is_no_show = TRUE, else 0)."
+
+  - name: int_claims_enriched
+    description: >
+      Joins claim records with patient insurance details and provider specialty.
+      Calculates expected reimbursement, claim gap, and high-value claim flags
+      for downstream financial reporting.
+    columns:
+      - name: claim_id
+        description: "Primary key — unique claim identifier."
+        tests:
+          - unique
+          - not_null
+      - name: is_high_value
+        description: "TRUE when billed_amount exceeds $5,000."
+      - name: claim_gap
+        description: "Dollar difference between billed and paid amounts."
+      - name: expected_reimbursement
+        description: "Projected reimbursement at 85% of allowed amount."
+
+  - name: int_patient_summary
+    description: >
+      Per-patient aggregate combining appointment, claim, and medication history.
+      Produces engagement score, outstanding balance, and activity recency
+      metrics used in dim_patients.
+    columns:
+      - name: patient_id
+        description: "Primary key — unique patient identifier."
+        tests:
+          - unique
+          - not_null
+      - name: engagement_score
+        description: "Composite score (0–100) based on appointment frequency, claim activity, and medication adherence."
+      - name: outstanding_balance
+        description: "Sum of patient_responsibility across all claims."
