@@ -33,17 +33,20 @@ sources:
             description: "Patient gender code."
             tests:
               - accepted_values:
-                  values: ['M', 'F']
+                  arguments:
+                    values: ['M', 'F']
           - name: BLOOD_TYPE
             description: "ABO blood group."
             tests:
               - accepted_values:
-                  values: ['A+','A-','B+','B-','O+','O-','AB+','AB-']
+                  arguments:
+                    values: ['A+','A-','B+','B-','O+','O-','AB+','AB-']
           - name: INSURANCE_PROVIDER
             description: "Primary insurance carrier."
             tests:
               - accepted_values:
-                  values: ['BlueCross','Aetna','Cigna','United','Medicare','Medicaid','Self-Pay']
+                  arguments:
+                    values: ['BlueCross','Aetna','Cigna','United','Medicare','Medicaid','Self-Pay']
           - name: IS_ACTIVE
             description: "Whether the patient record is currently active."
           - name: REGISTERED_AT
@@ -71,8 +74,9 @@ sources:
             description: "Medical specialty."
             tests:
               - accepted_values:
-                  values: ['Cardiology','Oncology','Neurology','Orthopedics','Pediatrics',
-                           'General Practice','Dermatology','Psychiatry','Radiology','Emergency Medicine']
+                  arguments:
+                    values: ['Cardiology','Oncology','Neurology','Orthopedics','Pediatrics',
+                             'General Practice','Dermatology','Psychiatry','Radiology','Emergency Medicine']
           - name: IS_ACTIVE
             description: "Whether the provider is currently active."
           - name: CREATED_AT
@@ -95,26 +99,30 @@ sources:
             tests:
               - not_null
               - relationships:
-                  to: source('raw', 'patients')
-                  field: PATIENT_ID
+                  arguments:
+                    to: source('raw', 'patients')
+                    field: PATIENT_ID
           - name: PROVIDER_ID
             description: "Foreign key to PROVIDERS."
             tests:
               - not_null
               - relationships:
-                  to: source('raw', 'providers')
-                  field: PROVIDER_ID
+                  arguments:
+                    to: source('raw', 'providers')
+                    field: PROVIDER_ID
           - name: STATUS
             description: "Appointment status."
             tests:
               - accepted_values:
-                  values: ['completed','scheduled','cancelled','no_show']
+                  arguments:
+                    values: ['completed','scheduled','cancelled','no_show']
           - name: APPOINTMENT_TYPE
             description: "Category of appointment."
             tests:
               - accepted_values:
-                  values: ['Routine Checkup','Follow-up','Emergency','Consultation',
-                           'Procedure','Lab Review','Vaccination','Mental Health','Physical Therapy']
+                  arguments:
+                    values: ['Routine Checkup','Follow-up','Emergency','Consultation',
+                             'Procedure','Lab Review','Vaccination','Mental Health','Physical Therapy']
           - name: CREATED_AT
             description: "Timestamp when the appointment was created."
 
@@ -142,7 +150,8 @@ sources:
             description: "Current status of the claim."
             tests:
               - accepted_values:
-                  values: ['paid','denied','pending','partial','appealed']
+                  arguments:
+                    values: ['paid','denied','pending','partial','appealed']
           - name: BILLED_AMOUNT
             description: "Total amount billed by provider."
             tests:
@@ -174,9 +183,10 @@ sources:
             description: "Name of the prescribed drug."
             tests:
               - accepted_values:
-                  values: ['Metformin','Lisinopril','Atorvastatin','Amlodipine','Omeprazole',
-                           'Levothyroxine','Metoprolol','Albuterol','Gabapentin','Sertraline',
-                           'Hydrochlorothiazide','Losartan']
+                  arguments:
+                    values: ['Metformin','Lisinopril','Atorvastatin','Amlodipine','Omeprazole',
+                             'Levothyroxine','Metoprolol','Albuterol','Gabapentin','Sertraline',
+                             'Hydrochlorothiazide','Losartan']
           - name: IS_ACTIVE
             description: "Whether the prescription is currently active."
           - name: CREATED_AT
