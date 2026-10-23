@@ -4,8 +4,7 @@ SELECT
     provider_id,
     appointment_date,
     appointment_time,
-    appointment_date::TIMESTAMP_NTZ
-        + appointment_time::TIME                                        AS appointment_datetime,
+    TIMESTAMP_NTZ_FROM_PARTS(appointment_date, appointment_time)        AS appointment_datetime,
     appointment_type,
     status,
     status = 'completed'                                                AS is_completed,
