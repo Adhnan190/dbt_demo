@@ -9,10 +9,11 @@ sources:
     tables:
       - name: patients
         description: "Raw patient demographic and insurance information."
-        loaded_at_field: created_at
-        freshness:
-          warn_after: {count: 24, period: hour}
-          error_after: {count: 48, period: hour}
+        config:
+          loaded_at_field: created_at
+          freshness:
+            warn_after: {count: 24, period: hour}
+            error_after: {count: 48, period: hour}
         columns:
           - name: PATIENT_ID
             description: "Primary key — unique sequential patient identifier."
@@ -56,10 +57,11 @@ sources:
 
       - name: providers
         description: "Raw provider (physician) records including specialty and hospital affiliation."
-        loaded_at_field: created_at
-        freshness:
-          warn_after: {count: 24, period: hour}
-          error_after: {count: 48, period: hour}
+        config:
+          loaded_at_field: created_at
+          freshness:
+            warn_after: {count: 24, period: hour}
+            error_after: {count: 48, period: hour}
         columns:
           - name: PROVIDER_ID
             description: "Primary key — unique sequential provider identifier."
@@ -84,10 +86,11 @@ sources:
 
       - name: appointments
         description: "Raw appointment records linking patients to providers for clinical visits."
-        loaded_at_field: created_at
-        freshness:
-          warn_after: {count: 24, period: hour}
-          error_after: {count: 48, period: hour}
+        config:
+          loaded_at_field: created_at
+          freshness:
+            warn_after: {count: 24, period: hour}
+            error_after: {count: 48, period: hour}
         columns:
           - name: APPOINTMENT_ID
             description: "Primary key — unique appointment identifier."
@@ -128,10 +131,11 @@ sources:
 
       - name: claims
         description: "Raw insurance claims submitted for reimbursement."
-        loaded_at_field: created_at
-        freshness:
-          warn_after: {count: 24, period: hour}
-          error_after: {count: 48, period: hour}
+        config:
+          loaded_at_field: created_at
+          freshness:
+            warn_after: {count: 24, period: hour}
+            error_after: {count: 48, period: hour}
         columns:
           - name: CLAIM_ID
             description: "Primary key — unique claim identifier."
@@ -161,10 +165,11 @@ sources:
 
       - name: medications
         description: "Raw medication prescription records."
-        loaded_at_field: created_at
-        freshness:
-          warn_after: {count: 24, period: hour}
-          error_after: {count: 48, period: hour}
+        config:
+          loaded_at_field: created_at
+          freshness:
+            warn_after: {count: 24, period: hour}
+            error_after: {count: 48, period: hour}
         columns:
           - name: MEDICATION_ID
             description: "Primary key — unique medication record identifier."
