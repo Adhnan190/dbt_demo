@@ -28,13 +28,15 @@ models:
         description: "Category of the appointment."
         tests:
           - accepted_values:
-              values: ['Routine Checkup','Follow-up','Emergency','Consultation',
-                       'Procedure','Lab Review','Vaccination','Mental Health','Physical Therapy']
+              arguments:
+                values: ['Routine Checkup','Follow-up','Emergency','Consultation',
+                         'Procedure','Lab Review','Vaccination','Mental Health','Physical Therapy']
       - name: status
         description: "Appointment outcome status."
         tests:
           - accepted_values:
-              values: ['completed','scheduled','cancelled','no_show']
+              arguments:
+                values: ['completed','scheduled','cancelled','no_show']
       - name: is_completed
         description: "TRUE if appointment was completed."
       - name: is_cancelled
@@ -86,7 +88,8 @@ models:
         description: "Adjudication status of the claim."
         tests:
           - accepted_values:
-              values: ['paid','denied','pending','partial','appealed']
+              arguments:
+                values: ['paid','denied','pending','partial','appealed']
       - name: billed_amount
         description: "Total amount billed."
         tests:
@@ -97,9 +100,10 @@ models:
         description: "Ratio of paid to billed (0–1)."
         tests:
           - dbt_utils.accepted_range:
-              min_value: 0
-              max_value: 1
-              inclusive: true
+              arguments:
+                min_value: 0
+                max_value: 1
+                inclusive: true
       - name: denial_flag
         description: "TRUE if the claim was denied."
       - name: is_high_value
@@ -110,7 +114,8 @@ models:
         description: "Processing speed bucket (Fast / Normal / Slow)."
         tests:
           - accepted_values:
-              values: ['Fast','Normal','Slow']
+              arguments:
+                values: ['Fast','Normal','Slow']
 
   - name: dim_patients
     description: >
@@ -140,12 +145,14 @@ models:
         description: "Revenue tier based on total lifetime payments."
         tests:
           - accepted_values:
-              values: ['High Value','Medium','Low']
+              arguments:
+                values: ['High Value','Medium','Low']
       - name: churn_risk
         description: "Churn risk level based on recency of last appointment."
         tests:
           - accepted_values:
-              values: ['High','Medium','Low']
+              arguments:
+                values: ['High','Medium','Low']
       - name: outstanding_balance
         description: "Total unpaid patient responsibility balance."
       - name: total_paid
@@ -179,7 +186,8 @@ models:
         description: "Volume classification: High / Medium / Low."
         tests:
           - accepted_values:
-              values: ['High','Medium','Low']
+              arguments:
+                values: ['High','Medium','Low']
 
   - name: rpt_daily_operations
     description: >

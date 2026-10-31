@@ -9,10 +9,11 @@ sources:
     tables:
       - name: patients
         description: "Raw patient demographic and insurance information."
-        loaded_at_field: created_at
-        freshness:
-          warn_after: {count: 24, period: hour}
-          error_after: {count: 48, period: hour}
+        config:
+          loaded_at_field: created_at
+          freshness:
+            warn_after: {count: 24, period: hour}
+            error_after: {count: 48, period: hour}
         columns:
           - name: PATIENT_ID
             description: "Primary key — unique sequential patient identifier."
@@ -33,17 +34,20 @@ sources:
             description: "Patient gender code."
             tests:
               - accepted_values:
-                  values: ['M', 'F']
+                  arguments:
+                    values: ['M', 'F']
           - name: BLOOD_TYPE
             description: "ABO blood group."
             tests:
               - accepted_values:
-                  values: ['A+','A-','B+','B-','O+','O-','AB+','AB-']
+                  arguments:
+                    values: ['A+','A-','B+','B-','O+','O-','AB+','AB-']
           - name: INSURANCE_PROVIDER
             description: "Primary insurance carrier."
             tests:
               - accepted_values:
-                  values: ['BlueCross','Aetna','Cigna','United','Medicare','Medicaid','Self-Pay']
+                  arguments:
+                    values: ['BlueCross','Aetna','Cigna','United','Medicare','Medicaid','Self-Pay']
           - name: IS_ACTIVE
             description: "Whether the patient record is currently active."
           - name: REGISTERED_AT
@@ -53,10 +57,11 @@ sources:
 
       - name: providers
         description: "Raw provider (physician) records including specialty and hospital affiliation."
-        loaded_at_field: created_at
-        freshness:
-          warn_after: {count: 24, period: hour}
-          error_after: {count: 48, period: hour}
+        config:
+          loaded_at_field: created_at
+          freshness:
+            warn_after: {count: 24, period: hour}
+            error_after: {count: 48, period: hour}
         columns:
           - name: PROVIDER_ID
             description: "Primary key — unique sequential provider identifier."
@@ -71,8 +76,9 @@ sources:
             description: "Medical specialty."
             tests:
               - accepted_values:
-                  values: ['Cardiology','Oncology','Neurology','Orthopedics','Pediatrics',
-                           'General Practice','Dermatology','Psychiatry','Radiology','Emergency Medicine']
+                  arguments:
+                    values: ['Cardiology','Oncology','Neurology','Orthopedics','Pediatrics',
+                             'General Practice','Dermatology','Psychiatry','Radiology','Emergency Medicine']
           - name: IS_ACTIVE
             description: "Whether the provider is currently active."
           - name: CREATED_AT
@@ -80,10 +86,11 @@ sources:
 
       - name: appointments
         description: "Raw appointment records linking patients to providers for clinical visits."
-        loaded_at_field: created_at
-        freshness:
-          warn_after: {count: 24, period: hour}
-          error_after: {count: 48, period: hour}
+        config:
+          loaded_at_field: created_at
+          freshness:
+            warn_after: {count: 24, period: hour}
+            error_after: {count: 48, period: hour}
         columns:
           - name: APPOINTMENT_ID
             description: "Primary key — unique appointment identifier."
@@ -95,35 +102,40 @@ sources:
             tests:
               - not_null
               - relationships:
-                  to: source('raw', 'patients')
-                  field: PATIENT_ID
+                  arguments:
+                    to: source('raw', 'patients')
+                    field: PATIENT_ID
           - name: PROVIDER_ID
             description: "Foreign key to PROVIDERS."
             tests:
               - not_null
               - relationships:
-                  to: source('raw', 'providers')
-                  field: PROVIDER_ID
+                  arguments:
+                    to: source('raw', 'providers')
+                    field: PROVIDER_ID
           - name: STATUS
             description: "Appointment status."
             tests:
               - accepted_values:
-                  values: ['completed','scheduled','cancelled','no_show']
+                  arguments:
+                    values: ['completed','scheduled','cancelled','no_show']
           - name: APPOINTMENT_TYPE
             description: "Category of appointment."
             tests:
               - accepted_values:
-                  values: ['Routine Checkup','Follow-up','Emergency','Consultation',
-                           'Procedure','Lab Review','Vaccination','Mental Health','Physical Therapy']
+                  arguments:
+                    values: ['Routine Checkup','Follow-up','Emergency','Consultation',
+                             'Procedure','Lab Review','Vaccination','Mental Health','Physical Therapy']
           - name: CREATED_AT
             description: "Timestamp when the appointment was created."
 
       - name: claims
         description: "Raw insurance claims submitted for reimbursement."
-        loaded_at_field: created_at
-        freshness:
-          warn_after: {count: 24, period: hour}
-          error_after: {count: 48, period: hour}
+        config:
+          loaded_at_field: created_at
+          freshness:
+            warn_after: {count: 24, period: hour}
+            error_after: {count: 48, period: hour}
         columns:
           - name: CLAIM_ID
             description: "Primary key — unique claim identifier."
@@ -142,7 +154,8 @@ sources:
             description: "Current status of the claim."
             tests:
               - accepted_values:
-                  values: ['paid','denied','pending','partial','appealed']
+                  arguments:
+                    values: ['paid','denied','pending','partial','appealed']
           - name: BILLED_AMOUNT
             description: "Total amount billed by provider."
             tests:
@@ -152,10 +165,11 @@ sources:
 
       - name: medications
         description: "Raw medication prescription records."
-        loaded_at_field: created_at
-        freshness:
-          warn_after: {count: 24, period: hour}
-          error_after: {count: 48, period: hour}
+        config:
+          loaded_at_field: created_at
+          freshness:
+            warn_after: {count: 24, period: hour}
+            error_after: {count: 48, period: hour}
         columns:
           - name: MEDICATION_ID
             description: "Primary key — unique medication record identifier."
@@ -174,9 +188,10 @@ sources:
             description: "Name of the prescribed drug."
             tests:
               - accepted_values:
-                  values: ['Metformin','Lisinopril','Atorvastatin','Amlodipine','Omeprazole',
-                           'Levothyroxine','Metoprolol','Albuterol','Gabapentin','Sertraline',
-                           'Hydrochlorothiazide','Losartan']
+                  arguments:
+                    values: ['Metformin','Lisinopril','Atorvastatin','Amlodipine','Omeprazole',
+                             'Levothyroxine','Metoprolol','Albuterol','Gabapentin','Sertraline',
+                             'Hydrochlorothiazide','Losartan']
           - name: IS_ACTIVE
             description: "Whether the prescription is currently active."
           - name: CREATED_AT

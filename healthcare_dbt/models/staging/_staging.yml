@@ -27,12 +27,14 @@ models:
         description: "Age bracket: Pediatric (< 18), Adult (18–64), Senior (65+)."
         tests:
           - accepted_values:
-              values: ['Pediatric','Adult','Senior']
+              arguments:
+                values: ['Pediatric', 'Adult', 'Senior']
       - name: gender
         description: "Patient gender code (M or F)."
         tests:
           - accepted_values:
-              values: ['M','F']
+              arguments:
+                values: ['M', 'F']
       - name: blood_type
         description: "ABO blood group."
       - name: phone
@@ -92,12 +94,14 @@ models:
         description: "Seniority bucket: Junior (< 5 yrs), Mid (5–14), Senior (15+)."
         tests:
           - accepted_values:
-              values: ['Junior','Mid','Senior']
+              arguments:
+                values: ['Junior', 'Mid', 'Senior']
       - name: specialty_group
         description: "High-level specialty grouping: Surgical, Medical, Diagnostic, Mental Health, or Primary Care."
         tests:
           - accepted_values:
-              values: ['Surgical','Medical','Diagnostic','Mental Health','Primary Care']
+              arguments:
+                values: ['Surgical', 'Medical', 'Diagnostic', 'Mental Health', 'Primary Care']
 
   - name: stg_appointments
     description: "Cleaned appointment records with a combined datetime field and boolean status flags."
@@ -125,13 +129,23 @@ models:
         description: "Category of the appointment visit."
         tests:
           - accepted_values:
-              values: ['Routine Checkup','Follow-up','Emergency','Consultation',
-                       'Procedure','Lab Review','Vaccination','Mental Health','Physical Therapy']
+              arguments:
+                values:
+                  - 'Routine Checkup'
+                  - 'Follow-up'
+                  - 'Emergency'
+                  - 'Consultation'
+                  - 'Procedure'
+                  - 'Lab Review'
+                  - 'Vaccination'
+                  - 'Mental Health'
+                  - 'Physical Therapy'
       - name: status
         description: "Appointment outcome status."
         tests:
           - accepted_values:
-              values: ['completed','scheduled','cancelled','no_show']
+              arguments:
+                values: ['completed', 'scheduled', 'cancelled', 'no_show']
       - name: is_completed
         description: "TRUE if status = completed."
       - name: is_cancelled
@@ -199,7 +213,8 @@ models:
         description: "Current adjudication status of the claim."
         tests:
           - accepted_values:
-              values: ['paid','denied','pending','partial','appealed']
+              arguments:
+                values: ['paid', 'denied', 'pending', 'partial', 'appealed']
       - name: denial_reason
         description: "Reason for denial (NULL if not denied)."
       - name: insurance_provider
@@ -216,7 +231,8 @@ models:
         description: "Speed bucket: Fast (≤7 days), Normal (≤30), Slow (>30)."
         tests:
           - accepted_values:
-              values: ['Fast','Normal','Slow']
+              arguments:
+                values: ['Fast', 'Normal', 'Slow']
       - name: created_at
         description: "Timestamp when the claim was created."
       - name: updated_at
@@ -248,7 +264,8 @@ models:
         description: "Dosing frequency."
         tests:
           - accepted_values:
-              values: ['Once daily','Twice daily','Three times daily','As needed','Weekly']
+              arguments:
+                values: ['Once daily', 'Twice daily', 'Three times daily', 'As needed', 'Weekly']
       - name: start_date
         description: "Date the prescription was started."
       - name: end_date
@@ -262,7 +279,7 @@ models:
       - name: pharmacy
         description: "Dispensing pharmacy."
       - name: created_at
-        description: "Timestamp when the prescription record was created."
+        description: "Timestamp when the prescription was created."
       - name: is_chronic
         description: "TRUE if the drug class is typically used for chronic conditions."
       - name: duration_days
