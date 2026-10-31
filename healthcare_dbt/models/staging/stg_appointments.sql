@@ -1,3 +1,5 @@
+
+
 SELECT
     appointment_id,
     patient_id,

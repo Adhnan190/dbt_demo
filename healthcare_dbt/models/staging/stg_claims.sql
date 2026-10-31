@@ -15,7 +15,7 @@ SELECT
     denial_reason,
     insurance_provider,
     days_to_process,
-    claim_status = 'denied'                                             AS denial_flag,
+    claim_status = 'denied'                                             AS not_denial_flag,
     ROUND(billed_amount - allowed_amount, 2)                            AS adjustment_amount,
     ROUND(paid_amount / NULLIF(billed_amount, 0), 4)                   AS coverage_rate,
     CASE

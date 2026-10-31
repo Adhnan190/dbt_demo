@@ -28,13 +28,21 @@ models:
         tests:
           - accepted_values:
               arguments:
+<<<<<<< HEAD
                 values: ['Pediatric', 'Adult', 'Senior']
+=======
+                values: ['Pediatric','Adult','Senior']
+>>>>>>> fc3ec23f24cb2eaf2ae728812bf2e4b50ace3e54
       - name: gender
         description: "Patient gender code (M or F)."
         tests:
           - accepted_values:
               arguments:
+<<<<<<< HEAD
                 values: ['M', 'F']
+=======
+                values: ['M','F']
+>>>>>>> fc3ec23f24cb2eaf2ae728812bf2e4b50ace3e54
       - name: blood_type
         description: "ABO blood group."
       - name: phone
@@ -95,13 +103,21 @@ models:
         tests:
           - accepted_values:
               arguments:
+<<<<<<< HEAD
                 values: ['Junior', 'Mid', 'Senior']
+=======
+                values: ['Junior','Mid','Senior']
+>>>>>>> fc3ec23f24cb2eaf2ae728812bf2e4b50ace3e54
       - name: specialty_group
         description: "High-level specialty grouping: Surgical, Medical, Diagnostic, Mental Health, or Primary Care."
         tests:
           - accepted_values:
               arguments:
+<<<<<<< HEAD
                 values: ['Surgical', 'Medical', 'Diagnostic', 'Mental Health', 'Primary Care']
+=======
+                values: ['Surgical','Medical','Diagnostic','Mental Health','Primary Care']
+>>>>>>> fc3ec23f24cb2eaf2ae728812bf2e4b50ace3e54
 
   - name: stg_appointments
     description: "Cleaned appointment records with a combined datetime field and boolean status flags."
@@ -130,6 +146,7 @@ models:
         tests:
           - accepted_values:
               arguments:
+<<<<<<< HEAD
                 values:
                   - 'Routine Checkup'
                   - 'Follow-up'
@@ -140,12 +157,20 @@ models:
                   - 'Vaccination'
                   - 'Mental Health'
                   - 'Physical Therapy'
+=======
+                values: ['Routine Checkup','Follow-up','Emergency','Consultation',
+                         'Procedure','Lab Review','Vaccination','Mental Health','Physical Therapy']
+>>>>>>> fc3ec23f24cb2eaf2ae728812bf2e4b50ace3e54
       - name: status
         description: "Appointment outcome status."
         tests:
           - accepted_values:
               arguments:
+<<<<<<< HEAD
                 values: ['completed', 'scheduled', 'cancelled', 'no_show']
+=======
+                values: ['completed','scheduled','cancelled','no_show']
+>>>>>>> fc3ec23f24cb2eaf2ae728812bf2e4b50ace3e54
       - name: is_completed
         description: "TRUE if status = completed."
       - name: is_cancelled
@@ -214,7 +239,11 @@ models:
         tests:
           - accepted_values:
               arguments:
+<<<<<<< HEAD
                 values: ['paid', 'denied', 'pending', 'partial', 'appealed']
+=======
+                values: ['paid','denied','pending','partial','appealed']
+>>>>>>> fc3ec23f24cb2eaf2ae728812bf2e4b50ace3e54
       - name: denial_reason
         description: "Reason for denial (NULL if not denied)."
       - name: insurance_provider
@@ -232,7 +261,11 @@ models:
         tests:
           - accepted_values:
               arguments:
+<<<<<<< HEAD
                 values: ['Fast', 'Normal', 'Slow']
+=======
+                values: ['Fast','Normal','Slow']
+>>>>>>> fc3ec23f24cb2eaf2ae728812bf2e4b50ace3e54
       - name: created_at
         description: "Timestamp when the claim was created."
       - name: updated_at
@@ -265,7 +298,11 @@ models:
         tests:
           - accepted_values:
               arguments:
+<<<<<<< HEAD
                 values: ['Once daily', 'Twice daily', 'Three times daily', 'As needed', 'Weekly']
+=======
+                values: ['Once daily','Twice daily','Three times daily','As needed','Weekly']
+>>>>>>> fc3ec23f24cb2eaf2ae728812bf2e4b50ace3e54
       - name: start_date
         description: "Date the prescription was started."
       - name: end_date
