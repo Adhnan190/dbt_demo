@@ -4,7 +4,7 @@ SELECT
     appointment_id,
     patient_id,
     provider_id,
-    appointment_date,
+    appointment_date as appointment_datee,
     appointment_time,
     TIMESTAMP_NTZ_FROM_PARTS(appointment_date, appointment_time)        AS appointment_datetime,
     appointment_type,
